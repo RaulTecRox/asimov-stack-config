@@ -38,3 +38,9 @@ ENV/
 
 # Logs
 *.log
+laya.log
+
+# IDE & Tools
+.serena/
+.idea/
+.vscode/

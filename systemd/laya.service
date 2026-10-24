@@ -1,0 +1,15 @@
+[Unit]
+Description=Laya Decision Service (System 1 - Fast Hierarchical Router)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/%u/projects/asimov-stack-config
+ExecStart=/usr/bin/python3 laya_service.py
+Restart=always
+RestartSec=5
+StandardOutput=append:/home/%u/projects/asimov-stack-config/laya.log
+StandardError=append:/home/%u/projects/asimov-stack-config/laya.log
+
+[Install]
+WantedBy=default.target

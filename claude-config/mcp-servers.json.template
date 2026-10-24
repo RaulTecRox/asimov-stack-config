@@ -1,0 +1,56 @@
+{
+  "mcpServers": {
+    "laya": {
+      "type": "stdio",
+      "command": "python",
+      "args": [
+        "{{STACK_DIR}}/laya_mcp.py",
+        "--stdio"
+      ],
+      "env": {}
+    },
+    "obsidian": {
+      "type": "stdio",
+      "command": "seekstone",
+      "args": [],
+      "env": {
+        "SEEKSTONE_VAULT": "{{OBSIDIAN_VAULT_PATH}}"
+      }
+    },
+    "serena": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "serena-agent",
+        "serena",
+        "start-mcp-server",
+        "--project-from-cwd",
+        "--context",
+        "claude-code",
+        "--open-web-dashboard",
+        "False"
+      ],
+      "env": {}
+    },
+    "gemini-notebook-mcp": {
+      "type": "stdio",
+      "command": "notebooklm-mcp",
+      "args": [],
+      "env": {}
+    },
+    "playwright-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest"
+      ],
+      "env": {}
+    },
+    "codebase-memory-mcp": {
+      "command": "codebase-memory-mcp",
+      "args": []
+    }
+  }
+}

@@ -4,8 +4,10 @@
 [![Architecture](https://img.shields.io/badge/architecture-4--layer-blue.svg)]()
 [![Model](https://img.shields.io/badge/System%201-Laya%20(Convai)-orange.svg)]()
 [![Runtime](https://img.shields.io/badge/Runtime-Orca%20(StablyAI)-purple.svg)]()
+[![Subagents](https://img.shields.io/badge/Subagents-290%2B-green.svg)]()
+[![Skills](https://img.shields.io/badge/Skills-440%2B-yellow.svg)]()
 
-Repositório central de configuração e automação da **Asimov Stack Personalizada**, integrando **Triple Memory Architecture**, **Laya Decision Model (System 1)** e **Orquestração Nativa com Orca CLI**.
+Repositório central de configuração, replicação e automação da **Asimov Stack Personalizada**, integrando **Triple Memory Architecture**, **Laya Decision Model (System 1)**, **290+ Subagentes Especialistas**, **440+ Skills Nativas**, **Orquestração com Orca CLI** e **Sincronização Contínua do Obsidian Vault com o GitHub**.
 
 ---
 
@@ -52,65 +54,104 @@ Repositório central de configuração e automação da **Asimov Stack Personali
 │  - Atualização do Grafo (CBM)        │
 │  - Registro de Gotchas (claude-mem)  │
 │  - Kanban Atualizado (Obsidian)      │
+│  - Git Push / Sync Automático        │
 └──────────────────────────────────────┘
 ```
 
 ---
 
-## 📦 Componentes da Stack
+## 📦 Componentes Incluídos no Repositório
 
-### 1. Camada de Reflexo Rápido: Laya Decision Service (`laya_service.py`)
-Microserviço em FastAPI que atua como porta de entrada. Em vez de acionar modelos generativos lentos para decisões operacionais, a Laya resolve em **~33ms**:
-- **`POST /route-agent`**: Roteia hierarquicamente entre 6 clusters e seleciona o subagente especialista.
-- **`POST /choice`**: Seleção discreta tipada.
-- **`POST /score`**: Avaliação contínua de risco/urgência (0.0 a 1.0).
-- **`POST /binary`**: Guardrails de segurança e validação booleana.
-
-### 2. Memória Tripla (Precedência Obrigatória)
-1. **`claude-mem` (Experiência):** Gotchas, preferências de ambiente e histórico da sessão.
-2. **`codebase-memory-mcp` (Implementação):** Grafo semântico e estrutural do código (AST / dependências).
-3. **`Obsidian Vault` (Sabedoria):** Especificações de produto, documentações e board de demandas (`board/DEM-*.md`).
-
-### 3. Orquestrador Físico: Orca CLI (`orca orchestration`)
-- Despacho de workers em ambientes isolados via Git Worktree (`orca worktree create`).
-- Protocolo assíncrono de comunicação inter-agente (`orca orchestration ask/reply/check`).
-- Auditoria via Decision Gates (`orca gate-create/resolve`).
+| Componente | Localização | Descrição |
+|---|---|---|
+| **Laya Service** | `laya_service.py` | FastAPI System 1: roteador não-autorregressivo em ~33ms |
+| **Laya FastMCP** | `laya_mcp.py` | Servidor MCP oficial (SSE e stdio) para consumo nativo por agentes |
+| **Subagentes** | `agents/` | 290+ definições de subagentes (`arquiteto`, `implementador`, `revisor`, etc.) |
+| **Skills Nativas** | `skills/` | 440+ skills cobrindo engenharia, arquitetura, testes, design e automação |
+| **Hooks do Harness** | `hooks/` | Hooks do Claude Code (formatação pós-edição, typecheck, gates de memória) |
+| **Regras Globais** | `rules/` e `CLAUDE.md` | Diretrizes comportamentais, segurança obrigatória e precedência de memória |
+| **Sincronizador Obsidian** | `scripts/sync_obsidian.ps1` | Sincronização bidirecional automatizada com o GitHub |
+| **Setup Automatizado** | `setup.ps1` e `setup.sh` | Bootstrap completo em 1 clique para novas máquinas |
+| **Prompt p/ Novo Agente** | `AGENT_BOOTSTRAP.md` | Prompt pronto para delegar a instalação a outro agente |
 
 ---
 
-## ⚡ Inicialização Automática no Claude Code
+## 🚀 Como Subir em Outra Máquina (Instalação em 1 Passo)
 
-O serviço da Laya está configurado para **subir automaticamente em segundo plano** assim que você inicia uma sessão no Claude Code:
+### Opção A: Delegando para Outro Agente (Recomendado)
+Basta copiar e colar o conteúdo de [AGENT_BOOTSTRAP.md](AGENT_BOOTSTRAP.md) para a sessão do Claude Code na nova máquina. O agente fará todo o clone, instalação, sincronização e validação sozinho.
 
-- **Hook de Disparo:** Integrado no `claude-hook-impl.cmd` do Orca.
-- **Script de Inicialização:** `run_laya_daemon.py`
-- **Comportamento:** Checa se a porta `8000` está aberta em <10ms; se não estiver, inicializa o uvicorn de forma desacoplada e silenciosa.
+### Opção B: Execução Manual
+
+#### No Windows (PowerShell):
+```powershell
+git clone https://github.com/RaulTecRox/asimov-stack-config.git
+cd asimov-stack-config
+.\setup.ps1
+```
+
+#### No Linux / macOS / WSL (Bash):
+```bash
+git clone https://github.com/RaulTecRox/asimov-stack-config.git
+cd asimov-stack-config
+chmod +x setup.sh scripts/*.sh
+./setup.sh
+```
+
+---
+
+## 📓 Sincronização do Obsidian Vault
+
+O Obsidian Vault armazena o conhecimento durável (`concepts/`, `entities/`, `references/`) e o quadro de demandas ativas (`board/DEM-*.md`).
+
+Para sincronizar manualmente a qualquer momento:
+- **Windows:** `powershell -File .\scripts\sync_obsidian.ps1`
+- **Linux/macOS:** `./scripts/sync_obsidian.sh`
+
+O script:
+1. Puxa as alterações mais recentes com rebase (`git pull origin main --rebase`).
+2. Identifica e adiciona novos arquivos e notas modificadas.
+3. Cria um commit com carimbo de data/hora.
+4. Faz push automático para `https://github.com/RaulTecRox/obsidian-vault.git`.
+
+---
+
+## ⚡ Inicialização da Laya (System 1)
+
+O microserviço da Laya opera como porta de entrada de baixa latência:
+- `POST /route-agent`: Triagem hierárquica por keyword-density / cluster matching.
+- `GET /health`: Health check do serviço.
+
+### Inicialização em Background no Windows:
+```cmd
+start_laya_mcp.cmd
+```
+Ou configure inicialização no boot do Windows:
+```cmd
+create_laya_autostart_user.cmd
+```
+
+### Inicialização no Linux/macOS:
+```bash
+./start_laya.sh
+```
 
 ---
 
 ## 🧪 Testes Automatizados
 
-Para testar a bateria de roteamento com demandas reais:
-
+Para validar o funcionamento do roteador Laya:
 ```bash
 python test_router.py
 ```
-
-### Resultados Validados:
-- **Demanda 1 (PostgreSQL):** Roteado para `Database Optimizer` (`database`)
-- **Demanda 2 (React/Tailwind):** Roteado para `Frontend Developer` (`frontend`)
-- **Demanda 3 (Pentest/Auth):** Roteado para `Security Architect` (`security`)
-- **Demanda 4 (Playwright/E2E):** Roteado para `Test Automation Engineer` (`qa_testing`)
-- **Demanda 5 (Docker/CI-CD):** Roteado para `DevOps Automator` (`devops_infra`)
-
-**Score:** 100% de precisão nos testes.
+Score esperado: **100% de precisão** nas baterias de roteamento (backend, frontend, database, security, qa_testing, devops_infra).
 
 ---
 
 ## 📚 Documentação Complementar
-
-- [Arquitetura Detalhada](docs/architecture.md)
-- [Deep Dive: Laya Decision Layer](docs/laya-decision-layer.md)
-- [Guia de Comandos: Orca Orchestration](docs/orca-orchestration.md)
+- [Prompt de Bootstrap para Agentes](AGENT_BOOTSTRAP.md)
 - [Ciclo de Trabalho Oficial](ciclo-de-trabalho.md)
 - [Triple Memory Architecture](triple-memory-architecture.md)
+- [Deep Dive: Laya Decision Layer](docs/laya-decision-layer.md)
+- [Guia de Comandos: Orca Orchestration](docs/orca-orchestration.md)
+- [Autostart da Laya no Windows](LAYA_AUTO_STARTUP_README.md)

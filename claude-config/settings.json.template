@@ -1,0 +1,105 @@
+{
+  "env": {
+    "ANTHROPIC_MODEL": "coding",
+    "ANTHROPIC_DEFAULT_FABLE_MODEL": "planning",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "planning",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "coding",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "coding",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "coding",
+    "CLAUDE_CODE_EFFORT_LEVEL": "max",
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "1000000"
+  },
+  "permissions": {
+    "defaultMode": "auto"
+  },
+  "enableAllProjectMcpServers": true,
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat \"$USERPROFILE/.claude/skills/project-startup/SKILL.md\"",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Grep|Glob|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "codebase-memory-mcp",
+            "args": [
+              "hook-augment"
+            ],
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$USERPROFILE/.claude/hooks/post-edit-format.js\"",
+            "timeout": 20
+          },
+          {
+            "type": "command",
+            "command": "node \"$USERPROFILE/.claude/hooks/post-edit-typecheck.js\"",
+            "timeout": 35
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "claude-mem@thedotmack": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "n8n-skills@n8n-io": true,
+    "ponytail@ponytail": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    },
+    "n8n-io": {
+      "source": {
+        "source": "github",
+        "repo": "n8n-io/skills"
+      }
+    },
+    "ponytail": {
+      "source": {
+        "source": "github",
+        "repo": "DietrichGebert/ponytail"
+      }
+    }
+  },
+  "autoUpdatesChannel": "latest",
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "theme": "dark"
+}
